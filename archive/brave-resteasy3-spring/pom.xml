@@ -4,6 +4,7 @@
   	<groupId>io.zipkin.brave</groupId>
     <artifactId>brave-parent</artifactId>
     <version>4.13.2-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>   
   
   <artifactId>brave-resteasy3-spring</artifactId>

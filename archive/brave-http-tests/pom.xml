@@ -5,6 +5,7 @@
     <artifactId>brave-parent</artifactId>
     <groupId>io.zipkin.brave</groupId>
     <version>4.13.2-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>brave-http-tests</artifactId>
   <packaging>jar</packaging>

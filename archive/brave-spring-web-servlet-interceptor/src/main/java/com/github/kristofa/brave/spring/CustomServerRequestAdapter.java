@@ -1,34 +1,37 @@
-package com.github.kristofa.brave.http;
+package com.github.kristofa.brave.spring;
+
+import static com.github.kristofa.brave.IdConversion.convertToLong;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.github.kristofa.brave.KeyValueAnnotation;
 import com.github.kristofa.brave.ServerRequestAdapter;
 import com.github.kristofa.brave.SpanId;
 import com.github.kristofa.brave.TraceData;
-import java.util.Collection;
-import java.util.Collections;
+import com.github.kristofa.brave.http.BraveHttpHeaders;
+import com.github.kristofa.brave.http.SpanNameProvider;
+
 import zipkin.TraceKeys;
 
-import static com.github.kristofa.brave.IdConversion.convertToLong;
+public class CustomServerRequestAdapter  implements ServerRequestAdapter {
+    private final HttpServletRequest request;
 
-/**
- * @deprecated Replaced by {@code HttpServerParser} from brave-http
- */
-@Deprecated
-public class HttpServerRequestAdapter implements ServerRequestAdapter {
-    private final HttpServerRequest request;
-    private final SpanNameProvider spanNameProvider;
-
-    public HttpServerRequestAdapter(HttpServerRequest request, SpanNameProvider spanNameProvider) {
+    public CustomServerRequestAdapter(HttpServletRequest request, SpanNameProvider spanNameProvider) {
         this.request = request;
-        this.spanNameProvider = spanNameProvider;
     }
 
     @Override
     public TraceData getTraceData() {
-        String sampled = request.getHttpHeaderValue(BraveHttpHeaders.Sampled.getName());
-        String parentSpanId = request.getHttpHeaderValue(BraveHttpHeaders.ParentSpanId.getName());
-        String traceId = request.getHttpHeaderValue(BraveHttpHeaders.TraceId.getName());
-        String spanId = request.getHttpHeaderValue(BraveHttpHeaders.SpanId.getName());
+        String sampled = request.getHeader(BraveHttpHeaders.Sampled.getName());
+        String parentSpanId = request.getHeader(BraveHttpHeaders.ParentSpanId.getName());
+        String traceId = request.getHeader(BraveHttpHeaders.TraceId.getName());
+        String spanId = request.getHeader(BraveHttpHeaders.SpanId.getName());
 
         // Official sampled value is 1, though some old instrumentation send true
         Boolean parsedSampled = sampled != null
@@ -49,15 +52,23 @@ public class HttpServerRequestAdapter implements ServerRequestAdapter {
 
     @Override
     public String getSpanName() {
-        //return spanNameProvider.spanName(request);
-	return "span-name";
+        return "custom span";
     }
 
     @Override
     public Collection<KeyValueAnnotation> requestAnnotations() {
+        List<KeyValueAnnotation> kvs = new ArrayList<KeyValueAnnotation>();
+        
+    	Map<String, String[]> params = this.request.getParameterMap();
+    	for(String key:params.keySet()){
+    		KeyValueAnnotation kv = KeyValueAnnotation.create(key, params.get(key)[0]);
+    		kvs.add(kv);
+    	}
+    	
         KeyValueAnnotation uriAnnotation = KeyValueAnnotation.create(
-                TraceKeys.HTTP_URL, request.getUri().toString());
-        return Collections.singleton(uriAnnotation);
+                TraceKeys.HTTP_URL, request.getRequestURI().toString() + "1");
+        kvs.add(uriAnnotation);
+        return kvs;
     }
 
     static SpanId getSpanId(String traceId, String spanId, String parentSpanId, Boolean sampled) {

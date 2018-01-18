@@ -8,7 +8,7 @@ import com.github.kristofa.brave.ServerSpanThreadBinder;
 import com.github.kristofa.brave.ServerTracer;
 import com.github.kristofa.brave.http.DefaultSpanNameProvider;
 import com.github.kristofa.brave.http.HttpResponse;
-import com.github.kristofa.brave.http.HttpServerRequestAdapter;
+//import com.github.kristofa.brave.http.HttpServerRequestAdapter;
 import com.github.kristofa.brave.http.HttpServerResponseAdapter;
 import com.github.kristofa.brave.http.SpanNameProvider;
 import com.github.kristofa.brave.internal.Nullable;
@@ -98,7 +98,7 @@ public class ServletHandlerInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
         if (request.getAttribute(HTTP_SERVER_SPAN_ATTRIBUTE) != null) return true; // already handled
 
-        requestInterceptor.handle(new HttpServerRequestAdapter(new ServletHttpServerRequest(request), spanNameProvider));
+        requestInterceptor.handle(new CustomServerRequestAdapter(request, spanNameProvider));
         if (maybeAddClientAddressFromRequest != null) {
             maybeAddClientAddressFromRequest.accept(request);
         }
@@ -108,7 +108,7 @@ public class ServletHandlerInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterConcurrentHandlingStarted(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
         request.setAttribute(HTTP_SERVER_SPAN_ATTRIBUTE, serverThreadBinder.getCurrentServerSpan());
-        serverThreadBinder.setCurrentSpan(ServerSpan.EMPTY);
+        serverThreadBinder.setCurrentSpan(null);
     }
 
     @Override

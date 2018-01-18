@@ -4,6 +4,7 @@
         <artifactId>brave-parent</artifactId>
         <groupId>io.zipkin.brave</groupId>
         <version>4.13.2-SNAPSHOT</version>
+	<relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,7 +22,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.zipkin.brave</groupId>
             <artifactId>brave-http</artifactId>
         </dependency>
         <!-- compile dep on 3.0.1 runtime on 2.5 -->
@@ -31,10 +32,10 @@
             <version>3.0.1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>brave-http-tests</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
     </dependencies>
 </project>
